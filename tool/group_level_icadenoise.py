@@ -74,8 +74,8 @@ if __name__ == '__main__':
     # 疾病对应的被试读取
     content = pd.read_excel("../TDBRAIN_participants_提取处理.xlsx", sheet_name=pclass)
     # ________________________________________________所有被试个体图像聚类列表_______________________________________________
-    raw_list = []
-    ica_list = []
+    # raw_list = []
+    # ica_list = []
 
     # 不同疾病循环
     for process_class in pclass:
@@ -100,50 +100,50 @@ if __name__ == '__main__':
                         ica = ICA(n_components=15, max_iter="auto", random_state=97)
                         ica.fit(raw)
 
-                        raw_list.append(raw)
-                        ica_list.append(ica)
+                        # raw_list.append(raw)
+                        # ica_list.append(ica)
 
-    # # 使用EOG 去除眼电
-    # ica.exclude = []
-    # # find which ICs match the EOG pattern
-    # eog_indices1, eog_scores1 = ica.find_bads_eog(raw, ch_name='Eog_v', verbose=False)
-    # eog_indices2, eog_scores2 = ica.find_bads_eog(raw, ch_name='Eog_h', verbose=False)
-    #
-    # # find which ICs match the ECG pattern
-    # ecg_indices3, ecg_scores3 = ica.find_bads_ecg(raw, ch_name='Ecg', verbose=False)
-    #
-    # ica.exclude.extend(eog_indices1)
-    # ica.exclude.extend(eog_indices2)
-    # ica.exclude.extend(ecg_indices3)
+                        # 使用EOG 去除眼电
+                        ica.exclude = []
+                        # find which ICs match the EOG pattern
+                        eog_indices1, eog_scores1 = ica.find_bads_eog(raw, ch_name='Eog_v', verbose=False)
+                        eog_indices2, eog_scores2 = ica.find_bads_eog(raw, ch_name='Eog_h', verbose=False)
 
-# 以下为弃用代码，使用corrmap 计算组间成分的相似性，前提假设噪声是相似的
-    #%%
-    # use the first subject as template; use Fpz as proxy for EOG
-    raw = raw_list[0]
-    ica = ica_list[0]
+                        # find which ICs match the ECG pattern
+                        ecg_indices3, ecg_scores3 = ica.find_bads_ecg(raw, ch_name='Ecg', verbose=False)
 
-    # find which ICs match the EOG pattern
-    eog_indices1, eog_scores1 = ica.find_bads_eog(raw, ch_name='Eog_v', verbose=False)
-    eog_indices2, eog_scores2 = ica.find_bads_eog(raw, ch_name='Eog_h', verbose=False)
+                        ica.exclude.extend(eog_indices1)
+                        ica.exclude.extend(eog_indices2)
+                        ica.exclude.extend(ecg_indices3)
 
-    # find which ICs match the ECG pattern
-    ecg_indices3, ecg_scores3 = ica.find_bads_ecg(raw, ch_name='Ecg', verbose=False)
-
-    corrmap(ica_list, template=(0, eog_indices1[0]))
-
-
-    #%%
-    for index, (ica, raw) in enumerate(zip(ica_list, raw_list)):
-        with mne.viz.use_browser_backend("matplotlib"):
-            fig = ica.plot_sources(raw, show_scrollbars=False)
-        fig.subplots_adjust(top=0.9)  # make space for title
-        fig.suptitle("Subject {}".format(index))
-        plt.show()
-
-    corrmap(ica_list, template=(0, eog_indices1[0]), threshold=0.9, label="blink", plot=False)
-    print([ica.labels_ for ica in ica_list])
-
-    ica_list[3].plot_components(picks=ica_list[3].labels_["blink"])
-    ica_list[3].exclude = ica_list[3].labels_["blink"]
-    ica_list[3].plot_sources(raw_list[3], show_scrollbars=False)
-    plt.show()
+# # 以下为弃用代码，使用corrmap 计算组间成分的相似性，前提假设噪声是相似的
+#     #%%
+#     # use the first subject as template; use Fpz as proxy for EOG
+#     raw = raw_list[0]
+#     ica = ica_list[0]
+#
+#     # find which ICs match the EOG pattern
+#     eog_indices1, eog_scores1 = ica.find_bads_eog(raw, ch_name='Eog_v', verbose=False)
+#     eog_indices2, eog_scores2 = ica.find_bads_eog(raw, ch_name='Eog_h', verbose=False)
+#
+#     # find which ICs match the ECG pattern
+#     ecg_indices3, ecg_scores3 = ica.find_bads_ecg(raw, ch_name='Ecg', verbose=False)
+#
+#     corrmap(ica_list, template=(0, eog_indices1[0]))
+#
+#
+#     #%%
+#     for index, (ica, raw) in enumerate(zip(ica_list, raw_list)):
+#         with mne.viz.use_browser_backend("matplotlib"):
+#             fig = ica.plot_sources(raw, show_scrollbars=False)
+#         fig.subplots_adjust(top=0.9)  # make space for title
+#         fig.suptitle("Subject {}".format(index))
+#         plt.show()
+#
+#     corrmap(ica_list, template=(0, eog_indices1[0]), threshold=0.9, label="blink", plot=False)
+#     print([ica.labels_ for ica in ica_list])
+#
+#     ica_list[3].plot_components(picks=ica_list[3].labels_["blink"])
+#     ica_list[3].exclude = ica_list[3].labels_["blink"]
+#     ica_list[3].plot_sources(raw_list[3], show_scrollbars=False)
+#     plt.show()
